@@ -1,3 +1,23 @@
+pub trait IteratorPlus: Iterator {
+    fn flatten_t(self) -> Flatten<Self>
+        where
+            Self: Sized,
+            Self::Item: IntoIterator;
+
+}
+
+impl<T> IteratorPlus for T
+    where
+        T: Iterator,
+{
+    fn flatten_t(self) -> Flatten<Self>
+        where
+            Self: Sized,
+            Self::Item: IntoIterator,
+    {
+        flatten(self)
+    }
+}
 
 pub fn flatten<I>(iter: I) -> Flatten<I::IntoIter>
     where
@@ -151,5 +171,10 @@ mod tests {
     fn we_need_to_go_deeper() {
         let deep = vec![vec![vec![vec![vec![1, 2]], vec![vec![3, 4]]]]];
         assert_eq!(flatten(flatten(flatten(flatten(deep)))).count(), 4);
+    }
+
+    #[test]
+    fn as_pub_trait_method() {
+        assert_eq!(vec![vec![1, 2, 3], vec![4, 5]].into_iter().flatten_t().count(), 5);
     }
 }
